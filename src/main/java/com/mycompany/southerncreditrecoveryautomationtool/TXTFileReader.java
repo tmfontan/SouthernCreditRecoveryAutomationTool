@@ -6,6 +6,7 @@ package com.mycompany.southerncreditrecoveryautomationtool;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Scanner;
 
 /**
  *
@@ -22,12 +24,15 @@ public class TXTFileReader {
 
    public static void main(String[] args) throws Exception {
 
-        File DESOTO_TXT = new File("C:\\Users\\fonta\\Downloads\\DESOTO19.TXT");
+        String FILE_PATH = "";
+        File DESOTO_TXT = new File("");
                 
         ProgressReport PROGRESS_REPORT;
         PaymentRecord PAYMENT_RECORD;
         
         CharSequence[] HEADERS_AND_FOOTERS = new CharSequence[5];
+        Scanner DELIMITER_CHECK;
+        Scanner SCANNER;
         
         HEADERS_AND_FOOTERS[0] = new StringBuilder("====================================================================================================================================");
         HEADERS_AND_FOOTERS[1] = new StringBuilder("DATE     AMOUNT    DATE      TOTAL");
@@ -40,6 +45,11 @@ public class TXTFileReader {
         BLANK_SPACE[0] = "                 ";
         BLANK_SPACE[1] = "    ";
         BLANK_SPACE[2] = "    ";
+        BLANK_SPACE[3] = "  ";
+        
+        String[] DELIMITER_IGNORE = {       "SOUTHERN",  "CREDIT", "RECOVERY,", "INC.", "PAGE" ,"AM", "PM", "SLP", "PROGRESS/STATUS", "REPORT","FOR", "-", "DESOTO", "REGIONAL","HOSPITAL","DATE","AMOUNT",
+                                                                                    "DATE","TOTAL","YOUR","ACCOUNT","NUMBER","AND","NAME","LISTED","LISTED","LAST","PAY","PAY/ADJ","BALANCE","CALLS/LETTERS","ACCOUNT","STATUS",
+                                                                                    "===================================================================================================================================="};
         
         String[] ROW_DATA;
         String[] LINE_SPLIT = null;
@@ -49,6 +59,43 @@ public class TXTFileReader {
         int ROW_COUNT = 0;
         int INDEX_TO_LINE = 0;
         int RECORD_COUNT = 0;
+        
+        SCANNER = new Scanner(System.in);
+        
+        try {
+            
+            System.out.print("Please enter the file path: ");
+            FILE_PATH = SCANNER.nextLine();
+            
+            while (FILE_PATH.contains("\"") ||FILE_PATH.contains("\'") || FILE_PATH.contains("/")) {
+                    if (FILE_PATH.contains("\"") ||FILE_PATH.contains("\'")) {
+                        FILE_PATH = FILE_PATH.substring(1, (FILE_PATH.length() - 1));
+                     }
+                    if (FILE_PATH.contains("/"))  {
+                        FILE_PATH.replaceAll("/", "\\");
+                    }
+            }
+            
+            DESOTO_TXT = new File(FILE_PATH);            
+            DELIMITER_CHECK = new Scanner(DESOTO_TXT).useDelimiter("\t");
+        
+            while(DELIMITER_CHECK.hasNextLine()){  
+                //Print the contents of a file by line  
+                System.out.print(DELIMITER_CHECK.next());             
+                String TEMP = DELIMITER_CHECK.next();
+                
+                for (int COUNTER = 0; COUNTER <= DELIMITER_IGNORE.length; COUNTER++) {
+                    // IF THE CURRENT LINE / WORD IS ANY OF THE STRINGS PRESENT IN THE DELIMITER_IGNORE ARRAY ABOVE THEN 
+                    // IGNORE THE CURRENT LINE. ELSE, BREAK APART THE CURRENT STRING INTO ITS INDIVIDUAL DATA PARTS
+                    if (!TEMP.contains(DELIMITER_IGNORE[COUNTER])) {
+                        PAYMENT_RECORD = new PaymentRecord();
+                        
+                        PAYMENT_RECORD.setAccountName(TEMP);
+             }  
+        }/*
+        catch (FileNotFoundException fnfe) {
+            System.out.println("File Not Found Exception.");
+        }*/
 
         try (BufferedReader br = new BufferedReader(new FileReader(DESOTO_TXT))) {
             while ((LINE = br.readLine()) != null) {
@@ -128,6 +175,7 @@ public class TXTFileReader {
                         }
                         
                         System.out.println("Row DATA: " +  ROW_DATA[i]);
+                       // System.out.println(ROW_DATA)
                         
                         LocalDate LAST_PAYMENT =  LocalDate.of(       Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]),
                                                                                                                        Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[0]), 
