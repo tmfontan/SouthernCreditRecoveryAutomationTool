@@ -4,6 +4,7 @@
  */
 package com.mycompany.southerncreditrecoveryautomationtool;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 /**
@@ -13,43 +14,74 @@ import java.util.ArrayList;
 public class ProgressReport {
     
     public ArrayList<PaymentRecord> LIST_OF_RECORDS;
-    public String COMPANY_NAME;
+    public int CLIENT_ID;
+    public String CLIENT_NAME;
     public int RECORD_COUNT;
+    public LocalDate REPORT_DATE;
+    public String TIMESTAMP;
+    
     
     public ProgressReport() {
         // Empty Constructor
     }
     
-    public ProgressReport(ArrayList<PaymentRecord> list, String name, int number) {
+    public ProgressReport(ArrayList<PaymentRecord> list, int id, String name, int number, LocalDate date, String time) {
         this.LIST_OF_RECORDS = list;
-        this.COMPANY_NAME = name;
+        this.CLIENT_ID = id;
+        this.CLIENT_NAME = name;
         this.RECORD_COUNT = number;
+        this.REPORT_DATE = date;
+        this. TIMESTAMP = time;
     }
     
     public ArrayList<PaymentRecord>  getRecordsList() {
         return this.LIST_OF_RECORDS;
     }
     
-    public String getCompanyName() {
-        return this.COMPANY_NAME;
+    public int getClientID() {
+        return this.CLIENT_ID;
+    }
+    
+    public String getClientName() {
+        return this.CLIENT_NAME;
     }
     
     public int getRecordCount() {
         return this.RECORD_COUNT;
     }
     
+    public LocalDate getFileCreationDate() {
+        return this.REPORT_DATE;
+    }
+    
+    public String getFileCreationTimestamp() {
+        return this.TIMESTAMP;
+    }
+    
     public void setRecordsList(ArrayList<PaymentRecord> list) {
         this.LIST_OF_RECORDS = list;
     }
     
-    public void setCompanyName(String name) {
-        this.COMPANY_NAME = name;
+    public void setClientID(int id) {
+        this.CLIENT_ID = id;
+    }
+    
+    public void setFileCreationDate(LocalDate date) {
+        this.REPORT_DATE = date;
+    }
+    
+    public void setFileCreationTimestamp(String time) {
+        this.TIMESTAMP = time;
+    }
+    
+    public void setClientName(String name) {
+        this.CLIENT_NAME = name;
     }
     
     public void setRecordCount(int number) {
         this.RECORD_COUNT = number;
     }
-    
+        
     public void addPaymentRecord(PaymentRecord record) {
         this.LIST_OF_RECORDS.add(record);
     }

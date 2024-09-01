@@ -22,208 +22,184 @@ import java.util.Scanner;
  */
 public class TXTFileReader {
 
-   public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         String FILE_PATH = "";
         File DESOTO_TXT = new File("");
-                
+
         ProgressReport PROGRESS_REPORT;
         PaymentRecord PAYMENT_RECORD;
-        
-        CharSequence[] HEADERS_AND_FOOTERS = new CharSequence[5];
+
+        CharSequence[] HEADERS_AND_FOOTERS = new CharSequence[6];
         Scanner DELIMITER_CHECK;
         Scanner SCANNER;
+
+        String[] DELIMITER_IGNORE = {
+            "SOUTHERN",
+            "CREDIT",
+            "RECOVERY,",
+            "INC.",
+            "PAGE",
+            "AM",
+            "PM",
+            "SLP",
+            "PROGRESS/STATUS",
+            "REPORT",
+            "FOR",
+            "-",
+            "DESOTO",
+            "REGIONAL",
+            "HOSPITAL",
+            "DATE",
+            "AMOUNT",
+            "DATE",
+            "TOTAL",
+            "YOUR",
+            "ACCOUNT",
+            "NUMBER",
+            "AND",
+            "NAME",
+            "LISTED",
+            "LISTED",
+            "LAST",
+            "PAY",
+            "PAY/ADJ",
+            "BALANCE",
+            "CALLS/LETTERS",
+            "ACCOUNT",
+            "STATUS",
+            "===================================================================================================================================="
+        };
+        
+        String[] HEADER_FOOTER_VALUES = {
+            "PROGRESS/STATUS REPORT FOR ",
+            " - DESOTO REGIONAL HOSPITAL",
+            "  SLP", "   ",
+            "===================================================================================================================================="
+        };
+        
+        String[] ACCOUNT_STATUS_OPTIONS = {
+            "COLLECTION EFFORTS EXHAUSTED",
+            "ACCOUNT PAID IN FULL",
+            "ATTEMPTING INITIAL CONTACT",
+            "CONTACT EFFORTS CONTINUE",
+            "UNRESPONSIVE TO CALLS/MAIL",
+        };
+        
+        ArrayList<String> PAYMENT_RECORD_LIST = new ArrayList<>();
+        String REMAINDER = "";
         
         HEADERS_AND_FOOTERS[0] = new StringBuilder("====================================================================================================================================");
         HEADERS_AND_FOOTERS[1] = new StringBuilder("DATE     AMOUNT    DATE      TOTAL");
         HEADERS_AND_FOOTERS[2] = new StringBuilder("YOUR ACCOUNT NUMBER AND NAME         LISTED    LISTED  LAST PAY    PAY/ADJ BALANCE  CALLS/LETTERS  ACCOUNT STATUS");
         HEADERS_AND_FOOTERS[3] = new StringBuilder("SOUTHERN CREDIT RECOVERY, INC.                                                   PAGE");
         HEADERS_AND_FOOTERS[4] = new StringBuilder("SLP                              PROGRESS/STATUS REPORT FOR ");
+        HEADERS_AND_FOOTERS[5] = new StringBuilder("                                                                                                                        ");
 
-        String[] BLANK_SPACE = new String[5];
-        
-        BLANK_SPACE[0] = "                 ";
-        BLANK_SPACE[1] = "    ";
-        BLANK_SPACE[2] = "    ";
-        BLANK_SPACE[3] = "  ";
-        
-        String[] DELIMITER_IGNORE = {       "SOUTHERN",  "CREDIT", "RECOVERY,", "INC.", "PAGE" ,"AM", "PM", "SLP", "PROGRESS/STATUS", "REPORT","FOR", "-", "DESOTO", "REGIONAL","HOSPITAL","DATE","AMOUNT",
-                                                                                    "DATE","TOTAL","YOUR","ACCOUNT","NUMBER","AND","NAME","LISTED","LISTED","LAST","PAY","PAY/ADJ","BALANCE","CALLS/LETTERS","ACCOUNT","STATUS",
-                                                                                    "===================================================================================================================================="};
-        
         String[] ROW_DATA;
         String[] LINE_SPLIT = null;
 
         String LINE = "";
-        
+
         int ROW_COUNT = 0;
         int INDEX_TO_LINE = 0;
         int RECORD_COUNT = 0;
         
+        boolean FILE_EXISTS = false;
+
         SCANNER = new Scanner(System.in);
         
-        try {
-            
-            System.out.print("Please enter the file path: ");
-            FILE_PATH = SCANNER.nextLine();
-            
-            while (FILE_PATH.contains("\"") ||FILE_PATH.contains("\'") || FILE_PATH.contains("/")) {
-                    if (FILE_PATH.contains("\"") ||FILE_PATH.contains("\'")) {
-                        FILE_PATH = FILE_PATH.substring(1, (FILE_PATH.length() - 1));
-                     }
-                    if (FILE_PATH.contains("/"))  {
-                        FILE_PATH.replaceAll("/", "\\");
-                    }
-            }
-            
-            DESOTO_TXT = new File(FILE_PATH);            
-            DELIMITER_CHECK = new Scanner(DESOTO_TXT).useDelimiter("\t");
-        
-            while(DELIMITER_CHECK.hasNextLine()){  
-                //Print the contents of a file by line  
-                System.out.print(DELIMITER_CHECK.next());             
-                String TEMP = DELIMITER_CHECK.next();
-                
-                for (int COUNTER = 0; COUNTER <= DELIMITER_IGNORE.length; COUNTER++) {
-                    // IF THE CURRENT LINE / WORD IS ANY OF THE STRINGS PRESENT IN THE DELIMITER_IGNORE ARRAY ABOVE THEN 
-                    // IGNORE THE CURRENT LINE. ELSE, BREAK APART THE CURRENT STRING INTO ITS INDIVIDUAL DATA PARTS
-                    if (!TEMP.contains(DELIMITER_IGNORE[COUNTER])) {
-                        PAYMENT_RECORD = new PaymentRecord();
-                        
-                        PAYMENT_RECORD.setAccountName(TEMP);
-             }  
-        }/*
-        catch (FileNotFoundException fnfe) {
-            System.out.println("File Not Found Exception.");
-        }*/
+        System.out.print("Please enter the file path: ");
+        FILE_PATH = SCANNER.nextLine();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(DESOTO_TXT))) {
-            while ((LINE = br.readLine()) != null) {
-                    ROW_COUNT++;
-            }
-        } 
-        catch (IOException ioe) {
-            System.out.println("File Input/Output Exception has Occured.");
-            ioe.printStackTrace();
-        }
-        
-       RECORD_COUNT = ((ROW_COUNT - 2) - 9);
-        System.out.println("This is the Row Count: " +  ROW_COUNT);
-        
-        try (BufferedReader br2 = new BufferedReader(new FileReader(DESOTO_TXT))) {
+        while (FILE_EXISTS == false) {
             
-            ROW_DATA = new String[ROW_COUNT];
-            
-            while((LINE = br2.readLine()) != null) {
-                
-                LINE_SPLIT = LINE.trim().split("\n", 2);
-                
-                 if ((LINE_SPLIT[0].isBlank()) ||( LINE_SPLIT[0].isEmpty()) || LINE_SPLIT[0] == null) {
-                    // Ignore the Current Row.
-                } 
-                 else if (LINE_SPLIT[0].contains(HEADERS_AND_FOOTERS[0]) || LINE_SPLIT[0].contains(HEADERS_AND_FOOTERS[1]) || LINE_SPLIT[0].contains(HEADERS_AND_FOOTERS[2]) || LINE_SPLIT[0].contains(HEADERS_AND_FOOTERS[3]) || LINE_SPLIT[0].contains(HEADERS_AND_FOOTERS[4])) {
-                    // Ignore the Current Row.
-                } 
-                 else {
-                    ROW_DATA[INDEX_TO_LINE] = LINE_SPLIT[0];
+        
+            while (FILE_PATH.contains("\"") || FILE_PATH.contains("\'") || FILE_PATH.contains("/")) {
+                if (FILE_PATH.contains("\"") || FILE_PATH.contains("\'")) {
+                    FILE_PATH = FILE_PATH.substring(1, (FILE_PATH.length() - 1));
                 }
-                INDEX_TO_LINE++;
+                if (FILE_PATH.contains("/")) {
+                    FILE_PATH.replaceAll("/", "\\");
+                }
             }
-            
-            PROGRESS_REPORT = new ProgressReport();
-            
-            for (int i = 0; i < ROW_DATA.length; i++) {
-                    if (ROW_DATA[i] == null) {
-                        // Ignore the Current Row
-                    }
-                    else {
-                        PAYMENT_RECORD = new PaymentRecord();
-                        
-                        // Break apart the String containing the current row's data to isolate the date present in the LISTED_DATE column.
-                        LocalDate LISTED_DATE =  LocalDate.of(       Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]),
-                                                                                                                   Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[0]), 
-                                                                                                        Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[1]));
-                                                
-                        // If the YEAR set as the year inthe  "Listed Date" column of the current row  is EQUAL to the current physical year, then create a new LocalDate Object
-                        // with the YEAR value of 2024.
-                        if ((Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]) + 2000) == (Integer.parseInt(Year.now().toString()))) {
-                                System.out.println("The Modulus and Year Values are Equal");
-                                LISTED_DATE = LocalDate.of(    Integer.parseInt(Year.now().toString()),
-                                                                                               Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[0]), 
-                                                                                    Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[1]));  
-                                PAYMENT_RECORD.setListedDate(LISTED_DATE);
+        }
 
-                        }
-                        // IF THE EXPERIMENTAL VALUE OF YEAR.NOW() + 2000 IS GREATER THAN THE CURRENT YEAR, THEN THE YEAR VALUE ON FILE HAS TO TAKE PLACE DURING
-                        // THE 1900s. THUS, CREATE A LOCALDATE OBJECT WITH THE CORRECT YEAR.
-                        else if ((Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]) + 2000) < (Integer.parseInt(Year.now().toString()))) {
-                            System.out.println("The Hypothetical Year is greater than the current Year.");
-                            LISTED_DATE = LocalDate.of(                Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]) + 1900,
-                                                                                               Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[0]), 
-                                                                                    Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[1]));
-                            PAYMENT_RECORD.setListedDate(LISTED_DATE);
+        DESOTO_TXT = new File(FILE_PATH);
+        DELIMITER_CHECK = new Scanner(DESOTO_TXT).useDelimiter("\t");
 
+        boolean CASE = true;
+        
+        while (DELIMITER_CHECK.hasNextLine() && (CASE = true)) {
+            
+            //Print the contents of a file by line .
+            //System.out.print("next(): " + DELIMITER_CHECK.nextLine());
+            
+            String TEMP[] = DELIMITER_CHECK.nextLine().split("\t");
+            
+            for (int COUNT = 0;  COUNT < TEMP.length; COUNT++) {
+                
+                //System.out.println("");
+                //System.out.println("BROKEN STRING PART: " + TEMP[COUNT]);
+                
+                String[] TESTER = TEMP[COUNT].split("  ");
+                
+                System.out.println("");
+                
+                for (int i = 0; i < TESTER.length; i++) {
+                      //System.out.println("TESTER: " +TESTER[i].isBlank() + " " + TESTER[i]);
+                      if (TESTER[i].isBlank() || TESTER[i].isEmpty()) {
+                          // Skip line seeing as there is no data present in the Split String.
+                      }
+                      /*else if ((Character.isAlphabetic(TESTER[i])) && (Character.isDigit(TESTER[i])) {
+                          String DATA_SECLUSION = TESTER[i].strip();
+                          System.out.println("TRIMMED STRING: " + DATA_SECLUSION);
+                      }*/
+                }
+                /*
+                if (CASE = false)  {
+                    COUNT = TEMP.length;
+                }
+                else {
+                    for (int COUNTER = 0; COUNTER < DELIMITER_IGNORE.length; COUNTER++) {
+                        if (TEMP[COUNT].contains(DELIMITER_IGNORE[COUNTER])) {
+                            // Ignore the Current Cell / Row Segment
+                            CASE = false;
+                            break;
                         }
-                        // IF THE EXPERIMENTAL VALUE OF YEAR.NOW() + 2000 IS LESS THAN THE CURRENT YEAR, THEN THE YEAR VALUE ON FILE HAS TO TAKE PLACE DURING
-                        // THE 2000s. THUS, CREATE A LOCALDATE OBJECT WITH THE CORRECT YEAR.
-                        else {
-                            System.out.println("The Hypothetical Year is less than the current Year.");
-                            LISTED_DATE = LocalDate.of(                Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]) + 2000,
-                                                                                               Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[0]), 
-                                                                                    Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[1]));  
-                            PAYMENT_RECORD.setListedDate(LISTED_DATE);
+                        else if (TEMP[COUNT].isBlank() || TEMP[COUNT].isEmpty()) {
+                            CASE = false;
+                            break;
                         }
-                        
-                        System.out.println("Row DATA: " +  ROW_DATA[i]);
-                       // System.out.println(ROW_DATA)
-                        
-                        LocalDate LAST_PAYMENT =  LocalDate.of(       Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]),
-                                                                                                                       Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[0]), 
-                                                                                                            Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[1]));
-                        
-                        
-                        /*
-                        System.out.println("Account Number: " + ROW_DATA[i].split(" ")[0]);
-                        System.out.println("Account Name: " + ROW_DATA[i].split(" ")[1].split("\t")[0] + " " + ROW_DATA[i].split(BLANK_SPACE[0])[0].substring( ROW_DATA[i].split(BLANK_SPACE[0])[0].length() - 1));
-                        System.out.println("Listed Month: " + ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[0]);
-                        System.out.println("Listed Day: " + ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[1]);
-                        System.out.println("Listed Year: " + ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]);
-                        System.out.println("Listed Date: " + LocalDate.of(          Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[2]),
-                                                                                                                                                Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[0]), 
-                                                                                                                                     Integer.parseInt(ROW_DATA[i].split(BLANK_SPACE[0])[1].substring(0,8).split("/")[1])));*/
-                        
-                        
-                        
-                        PAYMENT_RECORD.setAccountNumber(Integer.parseInt(ROW_DATA[i].split(" ")[0]));
-                        PAYMENT_RECORD.setAccountName(ROW_DATA[i].split(" ")[1].split("\t")[0] + " " + ROW_DATA[i].split(BLANK_SPACE[0])[0].substring( ROW_DATA[i].split(BLANK_SPACE[0])[0].length() - 1));
-                        PAYMENT_RECORD.setListedPrice(Double.parseDouble(ROW_DATA[i].split("\t")[3]));
-                        PAYMENT_RECORD.setListedDate(LocalDate.parse(ROW_DATA[i].split("\t")[4], DateTimeFormatter.BASIC_ISO_DATE));
-                        PAYMENT_RECORD.setRemainingBalance(Double.parseDouble(ROW_DATA[i].split("\t")[5]));
-                        PAYMENT_RECORD.setAttemptedCalls(Integer.parseInt(ROW_DATA[i].split("\t")[6]));
-                        PAYMENT_RECORD.setLettersMailed(Integer.parseInt(ROW_DATA[i].split("\t")[7]));
-                        PAYMENT_RECORD.setAccountStatus(ROW_DATA[i].split("\t")[8]);
-                        
-                        PROGRESS_REPORT.addPaymentRecord(PAYMENT_RECORD);
-                        
-                        System.out.println("Line #" + i + ": " + ROW_DATA[i]);
-                    }
-             }
-            
-            System.out.println("The Number of Records Present are: " + PROGRESS_REPORT.getRecordCount());
-            
-            //System.out.println("The length of the rowData String Array is: " + ROW_DATA.length);
-            
+                }*/
+                }
             }
-            catch (IOException e) {
-                System.out.println("Input / Output Exception");
-                e.printStackTrace();
-        }
-        catch (NumberFormatException nfe) {
-            System.out.println("Number Format Exception");
-            nfe.printStackTrace();
-        }
-        //catch (ExecuteException ee) {
-            
-       // }
+            /*
+            // START THE WHILE LOOP AT INDEX FOUR SO IT WILL IGNORE THE FIRST FIVE LINES OF THE REPORT
+            for (int COUNTER = 4; COUNTER < HEADERS_AND_FOOTERS.length; COUNTER++) {
+                // IF THE CURRENT LINE / WORD IS ANY OF THE STRINGS PRESENT IN THE DELIMITER_IGNORE ARRAY ABOVE THEN 
+                // IGNORE THE CURRENT LINE. ELSE, BREAK APART THE CURRENT STRING INTO ITS INDIVIDUAL DATA PARTS
+                if (TEMP.equals(HEADERS_AND_FOOTERS[COUNTER]) == true) {
+                    // IF THE CURRENT LINE CONTAINS A PROHIBITED STRING THEN SKIP THE CURRENT DATA ENTRY
+                    //System.out.println("The current line contains a Ignored String: " + DELIMITER_IGNORE[COUNTER]);
+                    COUNTER = HEADERS_AND_FOOTERS.length;
+                }
+                /*else if (TEMP.isBlank() == true || TEMP.isEmpty() == true) {
+                    // THE CURRENT DATA ENTRY IS BLANK, SO SKIP TO THE END OF THIS FOR LOOP AND MOVE ON TO THE NEXT
+                    // LINE OF DATA FROM THE FILE.
+                    //System.out.println("The current line is Blank or Empty: " + DELIMITER_IGNORE[COUNTER]);
+                    COUNTER = HEADERS_AND_FOOTERS.length;
+                }
+                else {
+                    //System.out.println(TEMP);
+                    PAYMENT_RECORD = new PaymentRecord();
+
+                   //"C:\Users\fonta\Downloads\DES0823.csv""C:\Users\fonta\Downloads\DES0823.csv""C:\Users\fonta\Downloads\DES0823.csv" PAYMENT_RECORD.setAccountName(TEMP);
+                    COUNTER = HEADERS_AND_FOOTERS.length;
+                }
+                //System.out.println("This is a Line: " + TEMP);
+            }
+            //System.out.println("GETTING HERE: " + TEMP);
+        }*/
     }
 }
