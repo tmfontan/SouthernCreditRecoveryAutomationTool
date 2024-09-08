@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -113,16 +114,15 @@ public class TXTFileReader {
         FILE_PATH = SCANNER.nextLine();
 
         while (FILE_EXISTS == false) {
-            
-        
             while (FILE_PATH.contains("\"") || FILE_PATH.contains("\'") || FILE_PATH.contains("/")) {
                 if (FILE_PATH.contains("\"") || FILE_PATH.contains("\'")) {
                     FILE_PATH = FILE_PATH.substring(1, (FILE_PATH.length() - 1));
                 }
-                if (FILE_PATH.contains("/")) {
+                else  if (FILE_PATH.contains("/")) {
                     FILE_PATH.replaceAll("/", "\\");
                 }
             }
+            FILE_EXISTS = true;
         }
 
         DESOTO_TXT = new File(FILE_PATH);
@@ -130,76 +130,63 @@ public class TXTFileReader {
 
         boolean CASE = true;
         
-        while (DELIMITER_CHECK.hasNextLine() && (CASE = true)) {
-            
+         while (DELIMITER_CHECK.hasNext() && (CASE = true)) {
+           
             //Print the contents of a file by line .
             //System.out.print("next(): " + DELIMITER_CHECK.nextLine());
-            
+           
             String TEMP[] = DELIMITER_CHECK.nextLine().split("\t");
-            
+           
             for (int COUNT = 0;  COUNT < TEMP.length; COUNT++) {
-                
+               
                 //System.out.println("");
                 //System.out.println("BROKEN STRING PART: " + TEMP[COUNT]);
-                
+               
                 String[] TESTER = TEMP[COUNT].split("  ");
-                
-                System.out.println("");
-                
+               
+                System.out.println("The Value of Temp[" + COUNT + "] is: " + TEMP[COUNT]);
+                //C:\Users\Tyler Fontana\Downloads\DESOTO20.txt
+               
                 for (int i = 0; i < TESTER.length; i++) {
                       //System.out.println("TESTER: " +TESTER[i].isBlank() + " " + TESTER[i]);
-                      if (TESTER[i].isBlank() || TESTER[i].isEmpty()) {
+                      if (TESTER[i].isBlank() || TESTER[i].isEmpty() || TESTER[i] == null) {
                           // Skip line seeing as there is no data present in the Split String.
+                          //System.out.println("The line is Blank");
                       }
-                      /*else if ((Character.isAlphabetic(TESTER[i])) && (Character.isDigit(TESTER[i])) {
-                          String DATA_SECLUSION = TESTER[i].strip();
-                          System.out.println("TRIMMED STRING: " + DATA_SECLUSION);
-                      }*/
-                }
-                /*
-                if (CASE = false)  {
-                    COUNT = TEMP.length;
-                }
-                else {
-                    for (int COUNTER = 0; COUNTER < DELIMITER_IGNORE.length; COUNTER++) {
-                        if (TEMP[COUNT].contains(DELIMITER_IGNORE[COUNTER])) {
-                            // Ignore the Current Cell / Row Segment
-                            CASE = false;
-                            break;
-                        }
-                        else if (TEMP[COUNT].isBlank() || TEMP[COUNT].isEmpty()) {
-                            CASE = false;
-                            break;
-                        }
-                }*/
+                      else {
+                          for (int j = 0; j < DELIMITER_IGNORE.length; j++) {
+                              for (int k = 0; k < TESTER.length; k++) {
+                                TESTER[k] = TESTER[k].trim();
+                                if (TESTER[i].isBlank() || TESTER[i].isEmpty() || TESTER[i] == null) {
+                                    // Skip line seeing as there is no data present in the Split String.
+                                    //System.out.println("The line is Blank");
+                                }
+                                else if (Pattern.compile(Pattern.quote(DELIMITER_IGNORE[j]),Pattern.CASE_INSENSITIVE).matcher(TESTER[k].trim().toLowerCase()).find() == false) {
+                                    //System.out.println("The Value of TESTER[" + k + "] is: "+ TESTER[k]);
+                                    if (Pattern.compile(Pattern.quote(ACCOUNT_STATUS_OPTIONS[0]),Pattern.CASE_INSENSITIVE).matcher(TESTER[k].trim().toLowerCase()).find() == false){
+                                        System.out.println("Getting here in COLLECTION EFFORTS EXHAUSTED");
+                                    }
+                                    else if (Pattern.compile(Pattern.quote(ACCOUNT_STATUS_OPTIONS[1]),Pattern.CASE_INSENSITIVE).matcher(TESTER[k].trim().toLowerCase()).find() == false){
+                                        System.out.println("Getting here in ACCOUNT PAID IN FULL");
+                                    }
+                                    else if (Pattern.compile(Pattern.quote(ACCOUNT_STATUS_OPTIONS[2]),Pattern.CASE_INSENSITIVE).matcher(TESTER[k].trim().toLowerCase()).find() == false){
+                                        System.out.println("Getting here in ATTEMPTING INITIAL CONTACT");
+                                    }
+                                    else if (Pattern.compile(Pattern.quote(ACCOUNT_STATUS_OPTIONS[3]),Pattern.CASE_INSENSITIVE).matcher(TESTER[k].trim().toLowerCase()).find() == false){
+                                        System.out.println("Getting here in CONTACT EFFORTS CONTINUE");
+                                    }
+                                    else if (Pattern.compile(Pattern.quote(ACCOUNT_STATUS_OPTIONS[4]),Pattern.CASE_INSENSITIVE).matcher(TESTER[k].trim().toLowerCase()).find() == false){
+                                        System.out.println("Getting here in UNRESPONSIVE TO CALLS/MAIL");
+                                    }
+                                }
+                              }
+                          }
+                          System.out.println("DELIMITER_IGNORE FINISHED");
+                      }
                 }
             }
-            /*
-            // START THE WHILE LOOP AT INDEX FOUR SO IT WILL IGNORE THE FIRST FIVE LINES OF THE REPORT
-            for (int COUNTER = 4; COUNTER < HEADERS_AND_FOOTERS.length; COUNTER++) {
-                // IF THE CURRENT LINE / WORD IS ANY OF THE STRINGS PRESENT IN THE DELIMITER_IGNORE ARRAY ABOVE THEN 
-                // IGNORE THE CURRENT LINE. ELSE, BREAK APART THE CURRENT STRING INTO ITS INDIVIDUAL DATA PARTS
-                if (TEMP.equals(HEADERS_AND_FOOTERS[COUNTER]) == true) {
-                    // IF THE CURRENT LINE CONTAINS A PROHIBITED STRING THEN SKIP THE CURRENT DATA ENTRY
-                    //System.out.println("The current line contains a Ignored String: " + DELIMITER_IGNORE[COUNTER]);
-                    COUNTER = HEADERS_AND_FOOTERS.length;
-                }
-                /*else if (TEMP.isBlank() == true || TEMP.isEmpty() == true) {
-                    // THE CURRENT DATA ENTRY IS BLANK, SO SKIP TO THE END OF THIS FOR LOOP AND MOVE ON TO THE NEXT
-                    // LINE OF DATA FROM THE FILE.
-                    //System.out.println("The current line is Blank or Empty: " + DELIMITER_IGNORE[COUNTER]);
-                    COUNTER = HEADERS_AND_FOOTERS.length;
-                }
-                else {
-                    //System.out.println(TEMP);
-                    PAYMENT_RECORD = new PaymentRecord();
-
-                   //"C:\Users\fonta\Downloads\DES0823.csv""C:\Users\fonta\Downloads\DES0823.csv""C:\Users\fonta\Downloads\DES0823.csv" PAYMENT_RECORD.setAccountName(TEMP);
-                    COUNTER = HEADERS_AND_FOOTERS.length;
-                }
-                //System.out.println("This is a Line: " + TEMP);
-            }
-            //System.out.println("GETTING HERE: " + TEMP);
-        }*/
+         }
+                
     }
 }
+         
